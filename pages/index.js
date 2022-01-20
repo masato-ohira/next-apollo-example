@@ -1,5 +1,4 @@
 import Link from 'next/link'
-
 import queryGraphql from '../shared/query-graphql'
 
 export default function UserListing({ users }) {
@@ -19,7 +18,7 @@ export default function UserListing({ users }) {
   )
 }
 
-export async function getStaticProps() {
+export async function getServerSideProps() {
   const { users } = await queryGraphql(`
     query {
       users {
