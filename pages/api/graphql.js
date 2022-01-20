@@ -1,33 +1,7 @@
-import { ApolloServer, gql, makeExecutableSchema } from 'apollo-server-micro'
+import { ApolloServer } from 'apollo-server-micro'
+import { schema } from '../../apollo/schema'
 
-const typeDefs = gql`
-  type Query {
-    users: [User!]!
-    user(username: String): User
-  }
-  type User {
-    id: Int
-    name: String
-    username: String
-  }
-`
-const users = [
-  { id: 1, name: 'Leeroy Jenkins', username: 'leeroy' },
-  { id: 2, name: 'Foo Bar', username: 'foobar' },
-]
-
-const resolvers = {
-  Query: {
-    users() {
-      return users
-    },
-    user(parent, { username }) {
-      return users.find((user) => user.username === username)
-    },
-  },
-}
-
-export const schema = makeExecutableSchema({ typeDefs, resolvers })
+const apolloServer = new ApolloServer({ schema })
 
 export const config = {
   api: {
@@ -35,6 +9,4 @@ export const config = {
   },
 }
 
-export default new ApolloServer({ schema }).createHandler({
-  path: '/api/graphql',
-})
+export default apolloServer.createHandler({ path: '/api/graphql' })

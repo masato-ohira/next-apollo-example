@@ -1,32 +1,56 @@
+import gql from 'graphql-tag'
 import Link from 'next/link'
-import queryGraphql from '../shared/query-graphql'
+import { useQuery } from '@apollo/client'
+import { initializeApollo } from '../apollo/client'
 
-export default function UserListing({ users }) {
+const usersQuery = gql`
+  query usersQuery {
+    users {
+      id
+      name
+    }
+  }
+`
+
+const Index = () => {
+  const {
+    data: { users },
+  } = useQuery(usersQuery)
+
   return (
-    <div>
-      <h1>User Listing</h1>
-      <ul>
-        {users.map((user) => (
-          <li key={user.username}>
-            <Link href="/[username]" as={`/${user.username}`}>
-              <a>{user.name}</a>
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </div>
+    <>
+      <div className="container py-4">
+        <div>
+          <ul>
+            {users.map((item) => {
+              return (
+                <li>
+                  <div className="field is-grouped">
+                    <div className="control">{item.id}</div>
+                    <div className="control">{item.name}</div>
+                  </div>
+                </li>
+              )
+            })}
+          </ul>
+        </div>
+      </div>
+    </>
   )
 }
 
-export async function getServerSideProps() {
-  const { users } = await queryGraphql(`
-    query {
-      users {
-        id
-        name
-        username
-      }
-    }
-  `)
-  return { props: { users } }
+export async function getStaticProps() {
+  const apolloClient = initializeApollo()
+
+  await apolloClient.query({
+    query: usersQuery,
+  })
+
+  return {
+    props: {
+      initialApolloState: apolloClient.cache.extract(),
+    },
+  }
 }
+
+export default Index
